@@ -7,15 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		35C11C1F1F791589004D2CE9 /* park.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 35C11C1E1F791580004D2CE9 /* park.jpg */; };
 		35C8E4681F74116A00401AD7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C8E4671F74116A00401AD7 /* AppDelegate.m */; };
 		35C8E46B1F74116A00401AD7 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C8E46A1F74116A00401AD7 /* ViewController.m */; };
 		35C8E46E1F74116A00401AD7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 35C8E46C1F74116A00401AD7 /* Main.storyboard */; };
 		35C8E4701F74116A00401AD7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35C8E46F1F74116A00401AD7 /* Assets.xcassets */; };
 		35C8E4731F74116A00401AD7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 35C8E4711F74116A00401AD7 /* LaunchScreen.storyboard */; };
 		35C8E4761F74116A00401AD7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C8E4751F74116A00401AD7 /* main.m */; };
+		35C8E4801F74127C00401AD7 /* PanoramaController.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C8E47F1F74127C00401AD7 /* PanoramaController.m */; };
+		35C8E4831F74132900401AD7 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35C8E4821F74132900401AD7 /* OpenGLES.framework */; };
+		35C8E4891F74AAB500401AD7 /* PanoramaUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 35C8E4871F74AAB500401AD7 /* PanoramaUtil.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		35C11C1E1F791580004D2CE9 /* park.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = park.jpg; sourceTree = "<group>"; };
 		35C8E4631F74116A00401AD7 /* VRPanoramaKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VRPanoramaKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35C8E4661F74116A00401AD7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		35C8E4671F74116A00401AD7 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -26,6 +31,11 @@
 		35C8E4721F74116A00401AD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		35C8E4741F74116A00401AD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		35C8E4751F74116A00401AD7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		35C8E47E1F74127C00401AD7 /* PanoramaController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PanoramaController.h; sourceTree = "<group>"; };
+		35C8E47F1F74127C00401AD7 /* PanoramaController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PanoramaController.m; sourceTree = "<group>"; };
+		35C8E4821F74132900401AD7 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		35C8E4871F74AAB500401AD7 /* PanoramaUtil.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = PanoramaUtil.c; sourceTree = "<group>"; };
+		35C8E4881F74AAB500401AD7 /* PanoramaUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PanoramaUtil.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35C8E4831F74132900401AD7 /* OpenGLES.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,6 +55,7 @@
 			children = (
 				35C8E4651F74116A00401AD7 /* VRPanoramaKit */,
 				35C8E4641F74116A00401AD7 /* Products */,
+				35C8E4811F74132900401AD7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,10 +70,12 @@
 		35C8E4651F74116A00401AD7 /* VRPanoramaKit */ = {
 			isa = PBXGroup;
 			children = (
+				35C8E47D1F7411AA00401AD7 /* PanoramaView */,
 				35C8E4661F74116A00401AD7 /* AppDelegate.h */,
 				35C8E4671F74116A00401AD7 /* AppDelegate.m */,
 				35C8E4691F74116A00401AD7 /* ViewController.h */,
 				35C8E46A1F74116A00401AD7 /* ViewController.m */,
+				35C11C1E1F791580004D2CE9 /* park.jpg */,
 				35C8E46C1F74116A00401AD7 /* Main.storyboard */,
 				35C8E46F1F74116A00401AD7 /* Assets.xcassets */,
 				35C8E4711F74116A00401AD7 /* LaunchScreen.storyboard */,
@@ -69,6 +83,25 @@
 				35C8E4751F74116A00401AD7 /* main.m */,
 			);
 			path = VRPanoramaKit;
+			sourceTree = "<group>";
+		};
+		35C8E47D1F7411AA00401AD7 /* PanoramaView */ = {
+			isa = PBXGroup;
+			children = (
+				35C8E47E1F74127C00401AD7 /* PanoramaController.h */,
+				35C8E47F1F74127C00401AD7 /* PanoramaController.m */,
+				35C8E4871F74AAB500401AD7 /* PanoramaUtil.c */,
+				35C8E4881F74AAB500401AD7 /* PanoramaUtil.h */,
+			);
+			path = PanoramaView;
+			sourceTree = "<group>";
+		};
+		35C8E4811F74132900401AD7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				35C8E4821F74132900401AD7 /* OpenGLES.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -129,6 +162,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35C11C1F1F791589004D2CE9 /* park.jpg in Resources */,
 				35C8E4731F74116A00401AD7 /* LaunchScreen.storyboard in Resources */,
 				35C8E4701F74116A00401AD7 /* Assets.xcassets in Resources */,
 				35C8E46E1F74116A00401AD7 /* Main.storyboard in Resources */,
@@ -145,6 +179,8 @@
 				35C8E46B1F74116A00401AD7 /* ViewController.m in Sources */,
 				35C8E4761F74116A00401AD7 /* main.m in Sources */,
 				35C8E4681F74116A00401AD7 /* AppDelegate.m in Sources */,
+				35C8E4891F74AAB500401AD7 /* PanoramaUtil.c in Sources */,
+				35C8E4801F74127C00401AD7 /* PanoramaController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,7 +315,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6DVBKACFHE;
+				DEVELOPMENT_TEAM = VZB4F57GUG;
 				INFOPLIST_FILE = VRPanoramaKit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wangxiaofa.cn.VRPanoramaKit;
@@ -293,7 +329,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6DVBKACFHE;
+				DEVELOPMENT_TEAM = VZB4F57GUG;
 				INFOPLIST_FILE = VRPanoramaKit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wangxiaofa.cn.VRPanoramaKit;

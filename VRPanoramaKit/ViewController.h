@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "PanoramaController.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : PanoramaController
 
 
 @end

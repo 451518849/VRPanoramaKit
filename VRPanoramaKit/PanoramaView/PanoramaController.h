@@ -1,5 +1,5 @@
 //
-//  PanoramaView.h
+//  PanoramaController.h
 //  VRPanoramaKit
 //
 //  Created by 小发工作室 on 2017/9/21.
@@ -10,11 +10,24 @@
 #import <GLKit/GLKit.h>
 #import <CoreMotion/CoreMotion.h>
 
-@interface PanoramaView : GLKViewController
+@interface PanoramaController : GLKViewController
 
 @property (nonatomic, copy  ) NSString        *imageName;
 
-// 运动管理
+@property (nonatomic, copy  ) NSString        *imageNameType;
+
 @property (nonatomic, strong) CMMotionManager *motionManager;
+
+@property (nonatomic, strong) GLKView         *panoramaView;
+
+
+/**
+ 初始化全景控制器
+
+ @param imageName 全景图名字
+ @param type 全景图类型，默认是jpg
+ @return PanoramaController
+ */
+- (instancetype)initWithImageName:(NSString *)imageName type:(NSString *)type;
 
 @end

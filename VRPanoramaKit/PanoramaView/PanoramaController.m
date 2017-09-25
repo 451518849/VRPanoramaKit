@@ -1,12 +1,12 @@
 //
-//  PanoramaView.m
+//  PanoramaController.m
 //  VRPanoramaKit
 //
 //  Created by 小发工作室 on 2017/9/21.
 //  Copyright © 2017年 小发工作室. All rights reserved.
 //
 
-#import "PanoramaView.h"
+#import "PanoramaController.h"
 #import "PanoramaUtil.h"
 
 #define ES_PI  (3.14159265f)
@@ -16,9 +16,8 @@
 
 #define FRAME_PER_SENCOND 60.0  //帧数
 
-@interface PanoramaView ()<GLKViewControllerDelegate,GLKViewDelegate>
+@interface PanoramaController ()<GLKViewControllerDelegate,GLKViewDelegate>
 
-@property (nonatomic, strong) GLKView                  *panoramaView;
 @property (nonatomic, strong) EAGLContext              *context;
 
 // 相机的广角角度
@@ -45,18 +44,19 @@
 // 模型坐标系
 @property (nonatomic, assign) GLKMatrix4               modelViewMatrix;
 
-// 平移手势
-@property (nonatomic, strong) UIPanGestureRecognizer   *pan;
+// 手势平移距离
 @property (nonatomic, assign) CGFloat                  panX;
 @property (nonatomic, assign) CGFloat                  panY;
 
-@property (nonatomic, strong) UIPinchGestureRecognizer *pinch;
+//两指缩放大小
 @property (nonatomic, assign) CGFloat                  scale;
 
+//是否双击
+@property (nonatomic, assign) BOOL                  isTapScale;
 
 @end
 
-@implementation PanoramaView
+@implementation PanoramaController
 
 - (instancetype)init {
     
@@ -74,8 +74,9 @@
     self = [super init];
     
     if (self) {
-        
-        _imageName = imageName;
+
+        self.imageName     = imageName;
+        self.imageNameType = type;
         
         if (type.length == 0) {
             
@@ -88,45 +89,48 @@
 }
 
 - (void)createPanoramView {
-
-    if (_panoramaView == nil) {
-        NSAssert(_imageName.length != 0, @"image name not nil,please check image name of PanoramView");
+    
+    if (self.imageName == nil) {
+        NSAssert(_imageName.length != 0, @"image name is nil,please check image name of PanoramView");
         return;
     }
     
-    _context                          = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    _panoramaView                     = (GLKView *)self.view;
-    _panoramaView.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
-    _panoramaView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+    _context                              = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    self.panoramaView                     = (GLKView *)self.view;
+    self.panoramaView.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
+    self.panoramaView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
 
-    _panoramaView.delegate            = self;
-    self.delegate                     = self;
+    self.panoramaView.delegate            = self;
+    self.delegate                         = self;
 
-    _panoramaView.context             = _context;
+    self.panoramaView.context             = _context;
 
-    self.preferredFramesPerSecond     = FRAME_PER_SENCOND;
+    self.preferredFramesPerSecond         = FRAME_PER_SENCOND;
     
     [self startDeviceMotion];
     [self setupOpenGL];
-
+    [self addGesture];
+    
     self.view.backgroundColor = [UIColor whiteColor];
-    _scale = 1.0;
 }
 
+#pragma mark set device Motion
 - (void)startDeviceMotion {
     
-    _motionManager = [[CMMotionManager alloc] init];
+    self.motionManager = [[CMMotionManager alloc] init];
     
-    _motionManager.deviceMotionUpdateInterval = 1/FRAME_PER_SENCOND;
-    _motionManager.showsDeviceMovementDisplay = YES;
+    self.motionManager.deviceMotionUpdateInterval = 1/FRAME_PER_SENCOND;
+    self.motionManager.showsDeviceMovementDisplay = YES;
 
-    [_motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXArbitraryCorrectedZVertical];
+    [self.motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXArbitraryCorrectedZVertical];
     
 
     
     _modelViewMatrix = GLKMatrix4Identity;
     
 }
+
+#pragma mark setup OpenGL
 
 - (void)setupOpenGL {
     
@@ -170,7 +174,7 @@
     glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*2, NULL);
 
     // 将图片转换成为纹理信息
-    NSString *imagePath = [[NSBundle mainBundle] pathForResource:_imageName ofType:@"jpg"];
+    NSString *imagePath = [[NSBundle mainBundle] pathForResource:self.imageName ofType:self.imageNameType];
     
     // 由于OpenGL的默认坐标系设置在左下角, 而GLKit在左上角, 因此需要转换
     NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],
@@ -184,6 +188,70 @@
     _effect.texture2d0.enabled = GL_TRUE;
     _effect.texture2d0.name    = _textureInfo.name;
 }
+
+#pragma mark Gesture
+
+- (void)addGesture {
+    
+    /// 平移手势
+    UIPanGestureRecognizer *pan =[[UIPanGestureRecognizer alloc] initWithTarget:self
+                                                                         action:@selector(panGestture:)];
+    
+    /// 捏合手势
+    UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self
+                                                                                action:@selector(pinchGesture:)];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                          action:@selector(tapGesture:)];
+    
+    tap.numberOfTouchesRequired = 1;
+    tap.numberOfTapsRequired    = 2;
+    
+    [self.view addGestureRecognizer:pinch];
+    [self.view addGestureRecognizer:pan];
+    [self.view addGestureRecognizer:tap];
+
+    _scale = 1.0;
+    
+}
+
+- (void)panGestture:(UIPanGestureRecognizer *)sender {
+    
+    CGPoint point = [sender translationInView:self.view];
+    _panX         += point.x;
+    _panY         += point.y;
+    
+    //转换之后归零
+    [sender setTranslation:CGPointZero inView:self.view];
+    
+    
+}
+
+- (void)pinchGesture:(UIPinchGestureRecognizer *)sender {
+    
+    _scale       *= sender.scale;
+    sender.scale = 1.0;
+
+}
+
+- (void)tapGesture:(UITapGestureRecognizer *)sender {
+    
+    if (!_isTapScale) {
+        
+        _isTapScale = YES;
+        
+        _scale = 1.5;
+    }
+    else
+    {
+        _scale = 1.0;
+        _isTapScale = NO;
+    }
+    
+
+        
+}
+
 
 #pragma mark -GLKViewDelegate
 
@@ -216,20 +284,19 @@
                                                                    aspect,
                                                                    0.1f,
                                                                    1);
+    
     projectionMatrix                   = GLKMatrix4Scale(projectionMatrix, -1.0f, 1.0f, 1.0f);
     
-    CMDeviceMotion *deviceMotion       = _motionManager.deviceMotion;
+    CMDeviceMotion *deviceMotion       = self.motionManager.deviceMotion;
     double w                           = deviceMotion.attitude.quaternion.w;
     double wx                          = deviceMotion.attitude.quaternion.x;
     double wy                          = deviceMotion.attitude.quaternion.y;
     double wz                          = deviceMotion.attitude.quaternion.z;
     
-    NSLog(@"w = %f, wx = %f, wy = %f wz = %f", w, wx, wy,wz);
-    
     GLKQuaternion quaternion           = GLKQuaternionMake(-wx, wy, wz, w);
     GLKMatrix4 rotation                = GLKMatrix4MakeWithQuaternion(quaternion);
     //上下滑动，绕X轴旋转
-    projectionMatrix                   = GLKMatrix4RotateX(projectionMatrix, -0.005*self.panY);
+    projectionMatrix                   = GLKMatrix4RotateX(projectionMatrix, -0.005 * _panY);
     projectionMatrix                   = GLKMatrix4Multiply(projectionMatrix, rotation);
     // 为了保证在水平放置手机的时候, 是从下往上看, 因此首先坐标系沿着x轴旋转90度
     projectionMatrix                   = GLKMatrix4RotateX(projectionMatrix, M_PI_2);
@@ -237,15 +304,12 @@
     _effect.transform.projectionMatrix = projectionMatrix;
     GLKMatrix4 modelViewMatrix         = GLKMatrix4Identity;
     //左右滑动绕Y轴旋转
-    modelViewMatrix                    = GLKMatrix4RotateY(modelViewMatrix, 0.005*self.panX);
+    modelViewMatrix                    = GLKMatrix4RotateY(modelViewMatrix, 0.005 * _panX);
     _effect.transform.modelviewMatrix  = modelViewMatrix;
     
     
 }
 
-//- (void)update{
-//
-//}
 
 - (CGFloat)rotateFromFocalLengh{
     
