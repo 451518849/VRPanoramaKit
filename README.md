@@ -32,5 +32,5 @@
 	    
 	    return YES;
 	}
-![](show.jpg)
+![{:height="50%" width="50%"}](show.jpg)
 
