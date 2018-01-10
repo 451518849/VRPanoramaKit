@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+#import <GLKit/GLKit.h>
+#import <CoreMotion/CoreMotion.h>
 
 @interface ViewController ()
 
@@ -18,8 +20,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-//    GLKView
-//    self.view.backgroundColor = [UIColor whiteColor];
 
 }
 

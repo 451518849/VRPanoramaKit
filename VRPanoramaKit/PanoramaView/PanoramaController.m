@@ -16,47 +16,89 @@
 
 #define FRAME_PER_SENCOND 60.0  //帧数
 
+#define SCREEN_WIDTH [UIScreen mainScreen].bounds.size.width
+#define SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
+
 @interface PanoramaController ()<GLKViewControllerDelegate,GLKViewDelegate>
 
-@property (nonatomic, strong) EAGLContext              *context;
-
 // 相机的广角角度
-@property (nonatomic, assign) CGFloat                  overture;
+@property (nonatomic, assign) CGFloat        overture;
 
 // 索引数
-@property (nonatomic, assign) int                      numIndices;
+@property (nonatomic, assign) GLsizei        numIndices;
 
 // 顶点索引缓存指针
-@property (nonatomic, assign) GLuint                   vertexIndicesBuffer;
+@property (nonatomic, assign) GLuint         vertexIndicesBuffer;
 
 // 顶点缓存指针
-@property (nonatomic, assign) GLuint                   vertexBuffer;
+@property (nonatomic, assign) GLuint         vertexBuffer;
 
 // 纹理缓存指针
-@property (nonatomic, assign) GLuint                   vertexTexCoord;
+@property (nonatomic, assign) GLuint         vertexTexCoord;
 
 // 着色器
-@property (nonatomic, strong) GLKBaseEffect            *effect;
+@property (nonatomic, strong) GLKBaseEffect  *effect;
 
 // 图片的纹理信息
-@property (nonatomic, strong) GLKTextureInfo           *textureInfo;
+@property (nonatomic, strong) GLKTextureInfo *textureInfo;
 
 // 模型坐标系
-@property (nonatomic, assign) GLKMatrix4               modelViewMatrix;
+@property (nonatomic, assign) GLKMatrix4     modelViewMatrix;
 
 // 手势平移距离
-@property (nonatomic, assign) CGFloat                  panX;
-@property (nonatomic, assign) CGFloat                  panY;
+@property (nonatomic, assign) CGFloat        panX;
+@property (nonatomic, assign) CGFloat        panY;
 
 //两指缩放大小
-@property (nonatomic, assign) CGFloat                  scale;
+@property (nonatomic, assign) CGFloat        scale;
 
 //是否双击
-@property (nonatomic, assign) BOOL                  isTapScale;
+@property (nonatomic, assign) BOOL           isTapScale;
+
+//测试按钮
+@property (nonatomic, strong) UIButton       *startButton;
+@property (nonatomic, strong) UIButton       *endButton;
 
 @end
 
 @implementation PanoramaController
+
+
+- (CMMotionManager *)motionManager {
+    if (_motionManager == nil) {
+        
+        _motionManager = [[CMMotionManager alloc] init];
+        
+        _motionManager.deviceMotionUpdateInterval = 1/FRAME_PER_SENCOND;
+        _motionManager.showsDeviceMovementDisplay = YES;
+
+    }
+    return _motionManager;
+}
+
+
+- (UIButton *)startButton{
+    if (_startButton == nil) {
+        _startButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        _startButton.frame = CGRectMake(100, 200, 100, 50);
+        [_startButton setTitle:@"开启全景图" forState:UIControlStateNormal];
+        [_startButton setBackgroundColor:[UIColor whiteColor]];
+        [_startButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+    }
+    return _startButton;
+}
+
+
+- (UIButton *)endButton{
+    if (_endButton == nil) {
+        _endButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        _endButton.frame = CGRectMake(100, 300, 100, 50);
+        [_endButton setTitle:@"关闭全景图" forState:UIControlStateNormal];
+        [_endButton setBackgroundColor:[UIColor whiteColor]];
+        [_endButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+    }
+    return _endButton;
+}
 
 - (instancetype)init {
     
@@ -71,6 +113,7 @@
 
 - (instancetype)initWithImageName:(NSString *)imageName type:(NSString *)type{
     
+
     self = [super init];
     
     if (self) {
@@ -83,50 +126,80 @@
             type = @"jpg";
         }
         
+
+        
         [self createPanoramView];
-    }
+        
+        
+        //实际开发中移除测试按钮
+        [self createTestButton];
+
+     }
     return self;
 }
 
-- (void)createPanoramView {
+- (void)startPanoramViewMotion{
+    
+    self.delegate                         = self;
+    self.preferredFramesPerSecond         = FRAME_PER_SENCOND;
+
+    [self setupOpenGL];
+    
+
+    [self startDeviceMotion];
+
+}
+
+- (void)stopPanoramViewMotion {
+    
+    self.delegate = nil;
+
+    [self stopDeviceMotion];
+    
+    [self setUpOpenGLByImage];
+    
+}
+
+#pragma -Private
+
+- (void)createPanoramView{
     
     if (self.imageName == nil) {
-        NSAssert(_imageName.length != 0, @"image name is nil,please check image name of PanoramView");
+        NSAssert(self.imageName.length != 0, @"image name is nil,please check image name of PanoramView");
         return;
     }
     
-    _context                              = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    EAGLContext *context                  = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     self.panoramaView                     = (GLKView *)self.view;
     self.panoramaView.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
     self.panoramaView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
 
+    self.panoramaView.context             = context;
     self.panoramaView.delegate            = self;
-    self.delegate                         = self;
-
-    self.panoramaView.context             = _context;
-
-    self.preferredFramesPerSecond         = FRAME_PER_SENCOND;
+    [EAGLContext setCurrentContext:context];
     
-    [self startDeviceMotion];
-    [self setupOpenGL];
     [self addGesture];
+
+    [self setUpOpenGLByImage];
+
+
     
-    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 #pragma mark set device Motion
 - (void)startDeviceMotion {
-    
-    self.motionManager = [[CMMotionManager alloc] init];
-    
-    self.motionManager.deviceMotionUpdateInterval = 1/FRAME_PER_SENCOND;
-    self.motionManager.showsDeviceMovementDisplay = YES;
 
     [self.motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXArbitraryCorrectedZVertical];
     
-
     
     _modelViewMatrix = GLKMatrix4Identity;
+    
+}
+
+- (void)stopDeviceMotion {
+    
+    [self.motionManager stopDeviceMotionUpdates];
+    [self.motionManager stopAccelerometerUpdates];
     
 }
 
@@ -134,7 +207,6 @@
 
 - (void)setupOpenGL {
     
-    [EAGLContext setCurrentContext:_context];
     glEnable(GL_DEPTH_TEST);
     
     // 顶点
@@ -144,17 +216,18 @@
     GLfloat *vTextCoord = NULL;
 
     // 索引
-    GLushort *indices   = NULL;
+    GLuint *indices     = NULL;
 
     int numVertices     = 0;
 
     _numIndices         = esGenSphere(200, 1.0, &vVertices, &vTextCoord, &indices, &numVertices);
-
+    
+    
     // 创建索引buffer并将indices的数据放入
     glGenBuffers(1, &_vertexIndicesBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vertexIndicesBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, _numIndices*sizeof(GLushort), indices, GL_STATIC_DRAW);
-
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, _numIndices*sizeof(GLuint), indices, GL_STATIC_DRAW);
+    
     // 创建顶点buffer并将vVertices中的数据放入
     glGenBuffers(1, &_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
@@ -172,22 +245,57 @@
     //设置纹理属性,对纹理的位置，颜色，坐标进行赋值
     glEnableVertexAttribArray(GLKVertexAttribTexCoord0);
     glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*2, NULL);
-
-    // 将图片转换成为纹理信息
-    NSString *imagePath = [[NSBundle mainBundle] pathForResource:self.imageName ofType:self.imageNameType];
     
-    // 由于OpenGL的默认坐标系设置在左下角, 而GLKit在左上角, 因此需要转换
-    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],
-                             GLKTextureLoaderOriginBottomLeft,
-                             nil];
-    
-    _textureInfo = [GLKTextureLoader textureWithContentsOfFile:imagePath options:options error:nil];
-    
-    // 设置着色器的纹理
-    _effect                    = [[GLKBaseEffect alloc] init];
-    _effect.texture2d0.enabled = GL_TRUE;
-    _effect.texture2d0.name    = _textureInfo.name;
 }
+
+- (void)setUpOpenGLByImage{
+    
+    GLfloat vertexArr[] =
+    {
+        1, -1, 0.0f, 1.0f, 0.0f, //右下
+        1, 1,0.0f,   1.0f, 1.0f, //右上
+        
+        -1, 1, 0.0f,  0.0f, 1.0f, //左上
+        -1, -1, 0.0f, 0.0f, 0.0f, //左下
+    };
+    
+    GLuint indexVertex[] = {
+        0, 2, 3,
+        0, 1, 2,
+    };
+    
+    _numIndices = sizeof(indexVertex)/sizeof(GLuint);
+
+    GLuint buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexArr), vertexArr, GL_STATIC_DRAW);
+    
+    GLuint index;
+    glGenBuffers(1, &index);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexVertex), indexVertex, GL_STATIC_DRAW);
+    
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, (GLfloat *)NULL + 0);
+    
+    glEnableVertexAttribArray(GLKVertexAttribTexCoord0);
+    glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, (GLfloat *)NULL + 3);
+    
+    
+    NSString *filePath = [[NSBundle mainBundle]pathForResource:self.imageName ofType:self.imageNameType];
+    
+    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:@(1),GLKTextureLoaderOriginBottomLeft, nil];
+    
+    GLKTextureInfo *textureInfo = [GLKTextureLoader textureWithContentsOfFile:filePath
+                                                                      options:options
+                                                                        error:nil];
+    
+    _effect                    = [[GLKBaseEffect alloc]init];
+    _effect.texture2d0.enabled = GL_TRUE;
+    _effect.texture2d0.name    = textureInfo.name;
+}
+
 
 #pragma mark Gesture
 
@@ -262,7 +370,9 @@
     /**清除颜色缓冲区与深度缓冲区内容*/
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     [_effect prepareToDraw];
-    glDrawElements(GL_TRIANGLES, _numIndices, GL_UNSIGNED_SHORT, 0);
+//    glDrawElements(GL_TRIANGLES, _numIndices, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT,0);
+
 }
 
 #pragma mark GLKViewControllerDelegate
@@ -306,10 +416,15 @@
     //左右滑动绕Y轴旋转
     modelViewMatrix                    = GLKMatrix4RotateY(modelViewMatrix, 0.005 * _panX);
     _effect.transform.modelviewMatrix  = modelViewMatrix;
-    
-    
+ 
 }
 
+- (void)glkViewController:(GLKViewController *)controller willPause:(BOOL)pause{
+    NSLog(@"pause:%d", pause);
+}
+
+- (void)drawPanoramView{
+}
 
 - (CGFloat)rotateFromFocalLengh{
     
@@ -330,5 +445,18 @@
     
     return radius;
 }
+
+#pragma -Test button
+
+- (void)createTestButton{
+    [self.startButton addTarget:self action:@selector(startPanoramViewMotion) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    [self.endButton addTarget:self action:@selector(stopPanoramViewMotion) forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.view addSubview:self.startButton];
+    [self.view addSubview:self.endButton];
+}
+
 
 @end

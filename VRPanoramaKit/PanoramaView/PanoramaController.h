@@ -30,4 +30,16 @@
  */
 - (instancetype)initWithImageName:(NSString *)imageName type:(NSString *)type;
 
+
+/**
+ 启动全景图
+ */
+- (void)startPanoramViewMotion;
+
+
+/**
+ 关闭全景图
+ */
+- (void)stopPanoramViewMotion;
+
 @end

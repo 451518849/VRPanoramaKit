@@ -28,7 +28,7 @@ int esGenSphere(int numSlices,
                 float radius,
                 float **vertices,
                 float **texCoords,
-                uint16_t **indices,
+                uint32_t **indices,
                 int *vertices_count) {
     
     
@@ -47,7 +47,7 @@ int esGenSphere(int numSlices,
     }
     
     if (indices != NULL) {
-        *indices = malloc(sizeof(uint16_t) * numIndices);
+        *indices = malloc(sizeof(uint32_t) * numIndices);
     }
     
     for (int i = 0; i < numParallels + 1; i++) {
@@ -70,7 +70,7 @@ int esGenSphere(int numSlices,
     
     // Generate the indices
     if (indices != NULL) {
-        uint16_t *indexBuf = (*indices);
+        uint32_t *indexBuf = (*indices);
         for (int i = 0; i < numParallels ; i++) {
             for (int j = 0; j < numSlices; j++) {
                 *indexBuf++ = i * (numSlices + 1) + j;

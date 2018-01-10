@@ -26,7 +26,7 @@ int esGenSphere(int numSlices,
                 float radius,
                 float **vertices,
                 float **texCoords,
-                uint16_t **indices,
+                uint32_t **indices,
                 int *vertices_count);
 
 #endif /* PanoramaUtil_h */

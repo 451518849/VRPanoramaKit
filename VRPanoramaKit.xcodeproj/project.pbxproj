@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		350507B11F8E73BA00D5A4FE /* Panorama.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 350507B01F8E73B400D5A4FE /* Panorama.jpg */; };
 		35C11C1F1F791589004D2CE9 /* park.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 35C11C1E1F791580004D2CE9 /* park.jpg */; };
 		35C8E4681F74116A00401AD7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C8E4671F74116A00401AD7 /* AppDelegate.m */; };
 		35C8E46B1F74116A00401AD7 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C8E46A1F74116A00401AD7 /* ViewController.m */; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		350507B01F8E73B400D5A4FE /* Panorama.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Panorama.jpg; sourceTree = "<group>"; };
 		35C11C1E1F791580004D2CE9 /* park.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = park.jpg; sourceTree = "<group>"; };
 		35C8E4631F74116A00401AD7 /* VRPanoramaKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VRPanoramaKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35C8E4661F74116A00401AD7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -76,6 +78,7 @@
 				35C8E4691F74116A00401AD7 /* ViewController.h */,
 				35C8E46A1F74116A00401AD7 /* ViewController.m */,
 				35C11C1E1F791580004D2CE9 /* park.jpg */,
+				350507B01F8E73B400D5A4FE /* Panorama.jpg */,
 				35C8E46C1F74116A00401AD7 /* Main.storyboard */,
 				35C8E46F1F74116A00401AD7 /* Assets.xcassets */,
 				35C8E4711F74116A00401AD7 /* LaunchScreen.storyboard */,
@@ -162,6 +165,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				350507B11F8E73BA00D5A4FE /* Panorama.jpg in Resources */,
 				35C11C1F1F791589004D2CE9 /* park.jpg in Resources */,
 				35C8E4731F74116A00401AD7 /* LaunchScreen.storyboard in Resources */,
 				35C8E4701F74116A00401AD7 /* Assets.xcassets in Resources */,
