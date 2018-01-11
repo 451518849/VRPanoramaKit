@@ -8,7 +8,7 @@
 2. 将PanoramaView文件复制到你的目录中
 
 3. 将要显示的图片添加到bundle中(这里可以自己扩展，比如保存到沙盒中)
-4. 初始化方法
+4. 主要方法
 
 		/**
 		 初始化全景控制器
@@ -18,6 +18,17 @@
 		 @return PanoramaController
 		 */
 		- (instancetype)initWithImageName:(NSString *)imageName type:(NSString *)type;
+		
+		/**
+		*启动全景图
+		*/		
+		- (void)startPanoramViewMotion;
+		
+		/**
+		* 关闭全景图
+		*
+		- (void)stopPanoramViewMotion;
+
 
 **Example in AppDelegate：**
 	
