@@ -16,8 +16,8 @@
 
 #define FRAME_PER_SENCOND 60.0  //帧数
 
-#define SCREEN_WIDTH [UIScreen mainScreen].bounds.size.width
-#define SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
+//#define SCREEN_WIDTH [UIScreen mainScreen].bounds.size.width
+//#define SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
 
 @interface PanoramaController ()<GLKViewControllerDelegate,GLKViewDelegate>
 
@@ -83,7 +83,7 @@
 - (UIButton *)startButton{
     if (_startButton == nil) {
         _startButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        _startButton.frame = CGRectMake(100, 200, 100, 50);
+        _startButton.frame = CGRectMake(100, 100, 100, 50);
         [_startButton setTitle:@"开启全景图" forState:UIControlStateNormal];
         [_startButton setBackgroundColor:[UIColor whiteColor]];
         [_startButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
@@ -95,7 +95,7 @@
 - (UIButton *)endButton{
     if (_endButton == nil) {
         _endButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        _endButton.frame = CGRectMake(100, 300, 100, 50);
+        _endButton.frame = CGRectMake(100, 160, 100, 50);
         [_endButton setTitle:@"关闭全景图" forState:UIControlStateNormal];
         [_endButton setBackgroundColor:[UIColor whiteColor]];
         [_endButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
@@ -136,7 +136,7 @@
         
         //实际开发中移除测试按钮
         [self createTestButton];
-
+        
      }
     return self;
 }
@@ -393,6 +393,11 @@
 
 }
 
+static float xx = 0;
+static float yy = 0;
+static float zz = 0;
+
+
 #pragma mark GLKViewControllerDelegate
 
 - (void)glkViewControllerUpdate:(GLKViewController *)controller {
@@ -423,22 +428,35 @@
         projectionMatrix                   = GLKMatrix4Scale(projectionMatrix, -1.0f, 1.0f, 1.0f);
         
         CMDeviceMotion *deviceMotion       = self.motionManager.deviceMotion;
+        
         double w                           = deviceMotion.attitude.quaternion.w;
         double wx                          = deviceMotion.attitude.quaternion.x;
         double wy                          = deviceMotion.attitude.quaternion.y;
         double wz                          = deviceMotion.attitude.quaternion.z;
         
+        //修正了初始位置不一致问题
+        if (yy == 0) {
+            
+            yy = 1 - wy;
+            zz = 1 - wz;
+            wy = 1;
+            wz = 1;
+            
+        }
         
-        quaternion           = GLKQuaternionMake(-wx, wy, wz, w);
         
-        NSLog(@"%f,%f,%f,%f",w,wx,wy,wz);
+        quaternion = GLKQuaternionMake(0,  yy + wy, wz + zz, 0);
 
+        NSLog(@"%f,%f,%f,%f",w,wx,wy,wz);
+        
     }
     else{
-        
-        quaternion = GLKQuaternionMake(-1, 1, 1, 1);
+    
+        projectionMatrix = GLKMatrix4Scale(projectionMatrix, -1.0f, 1.0f, 1.0f);
 
-        
+        quaternion       = GLKQuaternionMake(0, 1, 1, 0);
+        _panY            = 0;
+        _panX            = 0;
     }
     
 
@@ -451,6 +469,7 @@
     projectionMatrix                   = GLKMatrix4Multiply(projectionMatrix, rotation);
     // 为了保证在水平放置手机的时候, 是从下往上看, 因此首先坐标系沿着x轴旋转90度
     projectionMatrix                   = GLKMatrix4RotateX(projectionMatrix, M_PI_2);
+    
     
     _effect.transform.projectionMatrix = projectionMatrix;
     GLKMatrix4 modelViewMatrix         = GLKMatrix4Identity;
@@ -497,6 +516,10 @@
     
     [self.view addSubview:self.startButton];
     [self.view addSubview:self.endButton];
+}
+
+- (void)dealloc{
+    
 }
 
 
