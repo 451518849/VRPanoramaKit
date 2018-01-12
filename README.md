@@ -1,5 +1,6 @@
 # VRPanoramaKit
 一款基于OpenGL渲染的全景图查看器，实现陀螺仪旋转全景图，手动移动和放大全景图。
+实现了类似微博全景图的功能。
 
 **使用方法**：
 
@@ -44,5 +45,6 @@
 	    return YES;
 	}
 ![{:height="50%" width="50%"}](show.jpg)
-
 ![{:height="50%" width="50%"}](show.gif)
+
+
