@@ -396,6 +396,7 @@
 static float xx = 0;
 static float yy = 0;
 static float zz = 0;
+static float ww = 0;
 
 
 #pragma mark GLKViewControllerDelegate
@@ -437,15 +438,19 @@ static float zz = 0;
         //修正了初始位置不一致问题
         if (yy == 0) {
             
+            xx = 1 - wx;
             yy = 1 - wy;
             zz = 1 - wz;
+            ww = 1 - w;
+            
+            wx = -1;
             wy = 1;
             wz = 1;
-            
+            w = 1;
         }
         
         
-        quaternion = GLKQuaternionMake(0,  yy + wy, wz + zz, 0);
+        quaternion = GLKQuaternionMake(-(xx + wx),  yy + wy, wz + zz, ww + w);
 
         NSLog(@"%f,%f,%f,%f",w,wx,wy,wz);
         
@@ -454,7 +459,7 @@ static float zz = 0;
     
         projectionMatrix = GLKMatrix4Scale(projectionMatrix, -1.0f, 1.0f, 1.0f);
 
-        quaternion       = GLKQuaternionMake(0, 1, 1, 0);
+        quaternion       = GLKQuaternionMake(-1, 1, 1, 1);
         _panY            = 0;
         _panX            = 0;
     }
