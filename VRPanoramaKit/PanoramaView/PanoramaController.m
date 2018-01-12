@@ -55,6 +55,9 @@
 //是否双击
 @property (nonatomic, assign) BOOL           isTapScale;
 
+//是否根据陀螺仪旋转
+@property (nonatomic, assign) BOOL           isMotion;
+
 //测试按钮
 @property (nonatomic, strong) UIButton       *startButton;
 @property (nonatomic, strong) UIButton       *endButton;
@@ -140,23 +143,24 @@
 
 - (void)startPanoramViewMotion{
     
+    self.isMotion = YES;
+
     self.delegate                         = self;
     self.preferredFramesPerSecond         = FRAME_PER_SENCOND;
 
     [self setupOpenGL];
-    
 
+    
     [self startDeviceMotion];
 
 }
 
 - (void)stopPanoramViewMotion {
     
-    self.delegate = nil;
+    self.isMotion = NO;
 
-    [self stopDeviceMotion];
-    
-    [self setUpOpenGLByImage];
+    //    self.delegate = nil;
+
     
 }
 
@@ -180,8 +184,9 @@
     
     [self addGesture];
 
-    [self setUpOpenGLByImage];
+    [self startPanoramViewMotion];
 
+    self.isMotion = NO;
 
     
 }
@@ -246,43 +251,6 @@
     glEnableVertexAttribArray(GLKVertexAttribTexCoord0);
     glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*2, NULL);
     
-}
-
-- (void)setUpOpenGLByImage{
-    
-    GLfloat vertexArr[] =
-    {
-        1, -1, 0.0f, 1.0f, 0.0f, //右下
-        1, 1,0.0f,   1.0f, 1.0f, //右上
-        
-        -1, 1, 0.0f,  0.0f, 1.0f, //左上
-        -1, -1, 0.0f, 0.0f, 0.0f, //左下
-    };
-    
-    GLuint indexVertex[] = {
-        0, 2, 3,
-        0, 1, 2,
-    };
-    
-    _numIndices = sizeof(indexVertex)/sizeof(GLuint);
-
-    GLuint buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexArr), vertexArr, GL_STATIC_DRAW);
-    
-    GLuint index;
-    glGenBuffers(1, &index);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexVertex), indexVertex, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, (GLfloat *)NULL + 0);
-    
-    glEnableVertexAttribArray(GLKVertexAttribTexCoord0);
-    glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, (GLfloat *)NULL + 3);
-    
-    
     NSString *filePath = [[NSBundle mainBundle]pathForResource:self.imageName ofType:self.imageNameType];
     
     NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:@(1),GLKTextureLoaderOriginBottomLeft, nil];
@@ -295,6 +263,56 @@
     _effect.texture2d0.enabled = GL_TRUE;
     _effect.texture2d0.name    = textureInfo.name;
 }
+
+
+// 矩形图
+//- (void)setUpOpenGLByImage{
+//
+//    GLfloat vertexArr[] =
+//    {
+//        1, -1, 0.0f, 1.0f, 0.0f, //右下
+//        1, 1,0.0f,   1.0f, 1.0f, //右上
+//
+//        -1, 1, 0.0f,  0.0f, 1.0f, //左上
+//        -1, -1, 0.0f, 0.0f, 0.0f, //左下
+//    };
+//
+//    GLuint indexVertex[] = {
+//        0, 2, 3,
+//        0, 1, 2,
+//    };
+//
+//    _numIndices = sizeof(indexVertex)/sizeof(GLuint);
+//
+//    GLuint buffer;
+//    glGenBuffers(1, &buffer);
+//    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexArr), vertexArr, GL_STATIC_DRAW);
+//
+//    GLuint index;
+//    glGenBuffers(1, &index);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexVertex), indexVertex, GL_STATIC_DRAW);
+//
+//    glEnableVertexAttribArray(GLKVertexAttribPosition);
+//    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, (GLfloat *)NULL + 0);
+//
+//    glEnableVertexAttribArray(GLKVertexAttribTexCoord0);
+//    glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, (GLfloat *)NULL + 3);
+//
+//
+//    NSString *filePath = [[NSBundle mainBundle]pathForResource:self.imageName ofType:self.imageNameType];
+//
+//    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:@(1),GLKTextureLoaderOriginBottomLeft, nil];
+//
+//    GLKTextureInfo *textureInfo = [GLKTextureLoader textureWithContentsOfFile:filePath
+//                                                                      options:options
+//                                                                        error:nil];
+//
+//    _effect                    = [[GLKBaseEffect alloc]init];
+//    _effect.texture2d0.enabled = GL_TRUE;
+//    _effect.texture2d0.name    = textureInfo.name;
+//}
 
 
 #pragma mark Gesture
@@ -395,16 +413,39 @@
                                                                    0.1f,
                                                                    1);
     
-    projectionMatrix                   = GLKMatrix4Scale(projectionMatrix, -1.0f, 1.0f, 1.0f);
+    GLKQuaternion quaternion;
+
     
-    CMDeviceMotion *deviceMotion       = self.motionManager.deviceMotion;
-    double w                           = deviceMotion.attitude.quaternion.w;
-    double wx                          = deviceMotion.attitude.quaternion.x;
-    double wy                          = deviceMotion.attitude.quaternion.y;
-    double wz                          = deviceMotion.attitude.quaternion.z;
+    if(self.isMotion){
+        
+
+        
+        projectionMatrix                   = GLKMatrix4Scale(projectionMatrix, -1.0f, 1.0f, 1.0f);
+        
+        CMDeviceMotion *deviceMotion       = self.motionManager.deviceMotion;
+        double w                           = deviceMotion.attitude.quaternion.w;
+        double wx                          = deviceMotion.attitude.quaternion.x;
+        double wy                          = deviceMotion.attitude.quaternion.y;
+        double wz                          = deviceMotion.attitude.quaternion.z;
+        
+        
+        quaternion           = GLKQuaternionMake(-wx, wy, wz, w);
+        
+        NSLog(@"%f,%f,%f,%f",w,wx,wy,wz);
+
+    }
+    else{
+        
+        quaternion = GLKQuaternionMake(-1, 1, 1, 1);
+
+        
+    }
     
-    GLKQuaternion quaternion           = GLKQuaternionMake(-wx, wy, wz, w);
+
+
     GLKMatrix4 rotation                = GLKMatrix4MakeWithQuaternion(quaternion);
+    
+
     //上下滑动，绕X轴旋转
     projectionMatrix                   = GLKMatrix4RotateX(projectionMatrix, -0.005 * _panY);
     projectionMatrix                   = GLKMatrix4Multiply(projectionMatrix, rotation);
