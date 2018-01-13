@@ -435,63 +435,69 @@ static float ww = 0;
         double wy                          = deviceMotion.attitude.quaternion.y;
         double wz                          = deviceMotion.attitude.quaternion.z;
         
-        //修正了初始位置不一致问题
-        if (xx == 0) {
+        quaternion = GLKQuaternionMake(-wx,  wy, wz, w);
+//        //修正了初始位置不一致问题
+//        if (xx == 0) {
+//
+//            xx = 0 - wx;
+//            wx = 0;
+//
+//            yy = 0.7 - wy;
+//            wy = 0.7;
+//
+//            zz = 0.7 - wz;
+//            wz = 0.7;
+//
+//            ww = 0 - w;
+//            w = 0;
+//
+//
+//        }
+//        else
+//        {
+//
+//        }
+//
+//        float xxx = -(xx + wx);
+//        float yyy = yy + wy;
+//        float zzz = wz + zz;
+//        float www = ww + w;
+//
+//        quaternion = GLKQuaternionMake(xxx,  yyy, zzz, www);
 
-            xx = 0 - wx;
-            wx = 0;
-            
-            yy = 0.7 - wy;
-            wy = 0.7;
-            
-            zz = 0.7 - wz;
-            wz = 0.7;
-            
-            ww = 0 - w;
-            w = 0;
-            
-
-        }
+//        if (xxx > 1) {
+//            xxx = 2 - xxx;
+//        }
+//        else if(xxx < -1){
+//            xxx = -2 - xxx;
+//        }
+//
+//        if (yyy > 1) {
+//            yyy = 2 - yyy;
+//        }
+//        else if(yyy < -1){
+//            yyy = -2 - yyy;
+//        }
+//
+//        if (zzz > 1) {
+//            zzz = 2 - zzz;
+//        }
+//        else if(zzz < -1){
+//            zzz = -2 - zzz;
+//        }
+//
+//        if (www > 1) {
+//            www = 2 - www;
+//        }
+//        else if(www < -1){
+//            www = -2 - www;
+//        }
         
-        
-        float xxx = -(xx + wx);
-        float yyy = yy + wy;
-        float zzz = wz + zz;
-        float www = ww + w;
-
-        if (xxx >= 1) {
-            xxx = 1;
-        }
-        else if(xxx <= -1){
-            xxx = -1;
-        }
-        
-        if (yyy >= 1) {
-            yyy = 1;
-        }
-        else if(yyy <= -1){
-            yyy = -1;
-        }
-        
-        if (zzz >= 1) {
-            zzz = 1;
-        }
-        else if(zzz <= -1){
-            zzz = -1;
-        }
-        
-        if (www >= 1) {
-            www = 1;
-        }
-        else if(www <= -1){
-            www = -1;
-        }
-        
-        quaternion = GLKQuaternionMake(xxx,  yyy, zzz, www);
+//        quaternion = GLKQuaternionMake(xxx,  yyy, zzz, www);
 
         NSLog(@"%f + %f + %f + %f",xx,yy,zz,ww);
+//        NSLog(@"%f + %f + %f + %f",xxx,yyy,zzz,www);
         NSLog(@"%f,%f,%f,%f",wx,wy,wz,w);
-        NSLog(@"%f %f %f %f",-(xx + wx),yy + wy,wz + zz,ww + w);
 
         
     }

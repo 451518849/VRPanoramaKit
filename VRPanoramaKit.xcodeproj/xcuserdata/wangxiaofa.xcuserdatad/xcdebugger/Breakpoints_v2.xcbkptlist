@@ -46,15 +46,6 @@
                </BreakpointActionProxy>
             </Actions>
             <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__clang_call_terminate"
-                  moduleName = "libglInterpose.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  offsetFromSymbolStart = "13328">
-               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
