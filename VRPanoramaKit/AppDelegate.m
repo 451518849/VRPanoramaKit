@@ -20,11 +20,11 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    self.window                    = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    self.window.backgroundColor    = [UIColor whiteColor];
-    self.window.rootViewController = [[PanoramaController alloc] initWithImageName:@"park" type:@"jpg"];
-
-    [self.window makeKeyAndVisible];
+//    self.window                    = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+//    self.window.backgroundColor    = [UIColor whiteColor];
+//    self.window.rootViewController = [[PanoramaController alloc] initWithImageName:@"park" type:@"jpg"];
+//
+//    [self.window makeKeyAndVisible];
     
     return YES;
 }
