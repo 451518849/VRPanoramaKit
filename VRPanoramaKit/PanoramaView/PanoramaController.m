@@ -436,32 +436,76 @@ static float ww = 0;
         double wz                          = deviceMotion.attitude.quaternion.z;
         
         //修正了初始位置不一致问题
-        if (yy == 0) {
+        if (xx == 0) {
+
+            xx = 0 - wx;
+            wx = 0;
             
-            xx = 1 - wx;
-            yy = 1 - wy;
-            zz = 1 - wz;
-            ww = 1 - w;
+            yy = 0.7 - wy;
+            wy = 0.7;
             
-            wx = -1;
-            wy = 1;
-            wz = 1;
-            w = 1;
+            zz = 0.7 - wz;
+            wz = 0.7;
+            
+            ww = 0 - w;
+            w = 0;
+            
+
         }
         
         
-        quaternion = GLKQuaternionMake(-(xx + wx),  yy + wy, wz + zz, ww + w);
+        float xxx = -(xx + wx);
+        float yyy = yy + wy;
+        float zzz = wz + zz;
+        float www = ww + w;
 
-        NSLog(@"%f,%f,%f,%f",w,wx,wy,wz);
+        if (xxx >= 1) {
+            xxx = 1;
+        }
+        else if(xxx <= -1){
+            xxx = -1;
+        }
+        
+        if (yyy >= 1) {
+            yyy = 1;
+        }
+        else if(yyy <= -1){
+            yyy = -1;
+        }
+        
+        if (zzz >= 1) {
+            zzz = 1;
+        }
+        else if(zzz <= -1){
+            zzz = -1;
+        }
+        
+        if (www >= 1) {
+            www = 1;
+        }
+        else if(www <= -1){
+            www = -1;
+        }
+        
+        quaternion = GLKQuaternionMake(xxx,  yyy, zzz, www);
+
+        NSLog(@"%f + %f + %f + %f",xx,yy,zz,ww);
+        NSLog(@"%f,%f,%f,%f",wx,wy,wz,w);
+        NSLog(@"%f %f %f %f",-(xx + wx),yy + wy,wz + zz,ww + w);
+
         
     }
     else{
     
         projectionMatrix = GLKMatrix4Scale(projectionMatrix, -1.0f, 1.0f, 1.0f);
 
-        quaternion       = GLKQuaternionMake(-1, 1, 1, 1);
+        quaternion       = GLKQuaternionMake(0, 0.7, 0.7, 0);
         _panY            = 0;
         _panX            = 0;
+        xx = 0;
+        yy = 0;
+        zz = 0;
+        ww = 0;
     }
     
 
